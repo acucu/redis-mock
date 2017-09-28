@@ -26,6 +26,12 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertEquals(value, jedis.get(key));
     }
 
+    @Theory
+    public void whenUsingRPOP_EnsureTheLastElementPushedIsReturned(Jedis jedis){
+        String key = "Another key";
+        jedis.rpush(key, "1", "2", "3");
+        assertEquals(jedis.rpop(key), "3");
+    }
 
     @Theory
     public void whenUsingRPOPLPUSH_CorrectResultsAreReturned(Jedis jedis){

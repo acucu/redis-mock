@@ -94,8 +94,12 @@ public class RedisOperationExecutor {
                 return new RO_llen(base, params);
             case "lpop":
                 return new RO_lpop(base, params);
+            case "rpop":
+                return new RO_rpop(base, params);
             case "lindex":
                 return new RO_lindex(base, params);
+            case "rpoplpush":
+                return new RO_rpoplpush(base, params);
             default:
                 throw new UnsupportedOperationException(String.format("Unsupported operation '%s'", name));
         }
@@ -133,19 +137,19 @@ public class RedisOperationExecutor {
         }
     }
 
-    public synchronized void newTransaction(){
+    private synchronized void newTransaction(){
         if(transaction != null) throw new RuntimeException("Redis mock does not support more than one transaction");
         transaction = new ArrayList<>();
     }
 
-    public synchronized Slice commitTransaction(){
+    private synchronized Slice commitTransaction(){
         if(transaction == null) throw new RuntimeException("No transaction started");
         List<Slice> results = transaction.stream().map(RedisOperation::execute).collect(Collectors.toList());
         closeTransaction();
         return Response.array(results);
     }
 
-    public synchronized void closeTransaction(){
+    private synchronized void closeTransaction(){
         if (transaction != null){
             transaction.clear();
             transaction = null;
