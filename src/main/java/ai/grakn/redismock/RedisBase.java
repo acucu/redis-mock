@@ -128,4 +128,13 @@ public class RedisBase {
         }
         return Collections.emptySet();
     }
+
+    //TODO: Make this less ugly and not scale like rubbish
+    public int getNumSubscriptions(RedisClient client){
+        int count = 0;
+        for (Set<RedisClient> redisClients : subscribers.values()) {
+            if(redisClients.contains(client)) count++;
+        }
+        return count;
+    }
 }

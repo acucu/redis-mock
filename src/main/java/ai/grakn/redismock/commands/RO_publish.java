@@ -26,7 +26,7 @@ class RO_publish extends AbstractRedisOperation {
 
         subscibers.forEach(subscriber -> {
             try {
-                Slice response = Response.subscription(channel, message);
+                Slice response = Response.publishedMessage(channel, message);
                 subscriber.sendResponse(response);
             } catch (IOException e){
                 LOG.error("Unable to contact subscriber", e);
