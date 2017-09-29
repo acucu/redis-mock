@@ -1,6 +1,7 @@
 package ai.grakn.redismock.commands;
 
 import ai.grakn.redismock.RedisBase;
+import ai.grakn.redismock.RedisClient;
 import ai.grakn.redismock.RedisCommand;
 import ai.grakn.redismock.Response;
 import ai.grakn.redismock.Slice;
@@ -19,11 +20,13 @@ import java.util.stream.Collectors;
  */
 public class RedisOperationExecutor {
 
+    private final RedisClient owner;
     private final RedisBase base;
     private List<RedisOperation> transaction;
 
-    public RedisOperationExecutor(RedisBase base) {
+    public RedisOperationExecutor(RedisBase base, RedisClient owner) {
         this.base = base;
+        this.owner = owner;
     }
 
     public RedisOperation buildSimpleOperation(String name, List<Slice> params){
@@ -101,6 +104,12 @@ public class RedisOperationExecutor {
             case "rpoplpush":
             case "brpoplpush":
                 return new RO_rpoplpush(base, params);
+            case "subscribe":
+                return new RO_subscribe(base, owner, params);
+            case "unsubscribe":
+                return new RO_unsubscribe(base, owner, params);
+            case "publish":
+                return new RO_publish(base, params);
             default:
                 throw new UnsupportedOperationException(String.format("Unsupported operation '%s'", name));
         }

@@ -49,8 +49,8 @@ public class AdvanceOperationsTest extends ComparisonBase {
 
     @Theory
     public void whenSubscribingToAChannel_EnsurePublishedMessagesAreReceived(Jedis jedis) throws InterruptedException {
-        String channel = "channel";
-        String message = "message";
+        String channel = "normalbob";
+        String message = "SUPERBOB";
 
         //Create subscriber
         ExecutorService subsciberThread = Executors.newSingleThreadExecutor();

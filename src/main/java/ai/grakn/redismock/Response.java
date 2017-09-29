@@ -4,6 +4,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,5 +43,17 @@ public class Response {
             bo.write(value.data());
         }
         return new Slice(bo.toByteArray());
+    }
+
+
+    public static Slice subscription(Slice channel, Slice message){
+        Slice operation = SliceParser.consumeParameter("$7\r\nmessage\r\n".getBytes());
+
+        List<Slice> slices = new ArrayList<>();
+        slices.add(Response.bulkString(operation));
+        slices.add(Response.bulkString(channel));
+        slices.add(Response.bulkString(message));
+
+        return array(slices);
     }
 }
