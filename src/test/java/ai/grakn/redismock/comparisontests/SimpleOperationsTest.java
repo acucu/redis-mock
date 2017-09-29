@@ -54,7 +54,8 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertTrue(results2.contains("c"));
 
         //Check that the one list has been pushed into the other
-        jedis.rpoplpush(list1key, list2key);
+        String result = jedis.rpoplpush(list1key, list2key);
+        assertEquals("3", result);
 
         results1 = jedis.lrange(list1key, 0, -1);
         results2 = jedis.lrange(list2key, 0, -1);

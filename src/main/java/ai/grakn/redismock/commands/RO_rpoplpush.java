@@ -1,9 +1,11 @@
 package ai.grakn.redismock.commands;
 
 import ai.grakn.redismock.RedisBase;
-import ai.grakn.redismock.Response;
 import ai.grakn.redismock.Slice;
+import ai.grakn.redismock.SliceParser;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 class RO_rpoplpush extends AbstractRedisOperation {
@@ -17,8 +19,12 @@ class RO_rpoplpush extends AbstractRedisOperation {
         Slice list2Key = params().get(1);
 
         //Pop last one
-        //TODO: pop stuff
+        Slice result = new RO_rpop(base(), Collections.singletonList(list1Key)).execute();
+        Slice valueToPush = SliceParser.consumeParameter(result.data());
 
-        return Response.bulkString(base().rawGet(params().get(0)));
+        //Push it into the other list
+        new RO_lpush(base(), Arrays.asList(list2Key, valueToPush)).execute();
+
+        return result;
     }
 }
