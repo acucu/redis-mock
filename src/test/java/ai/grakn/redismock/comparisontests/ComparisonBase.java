@@ -48,5 +48,4 @@ public class ComparisonBase {
 
         return jedis;
     }
-
 }
