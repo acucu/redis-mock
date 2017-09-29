@@ -99,6 +99,7 @@ public class RedisOperationExecutor {
             case "lindex":
                 return new RO_lindex(base, params);
             case "rpoplpush":
+            case "brpoplpush":
                 return new RO_rpoplpush(base, params);
             default:
                 throw new UnsupportedOperationException(String.format("Unsupported operation '%s'", name));
