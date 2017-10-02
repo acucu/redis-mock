@@ -8,7 +8,7 @@ import ai.grakn.redismock.SliceParser;
 import java.util.Arrays;
 import java.util.List;
 
-import static ai.grakn.redismock.Utils.convertToInteger;
+import static ai.grakn.redismock.Utils.convertToLong;
 
 class RO_brpoplpush extends RO_rpoplpush {
     RO_brpoplpush(RedisBase base, List<Slice> params) {
@@ -19,16 +19,18 @@ class RO_brpoplpush extends RO_rpoplpush {
     @Override
     public Slice execute() {
         Slice source = params().get(0);
-        int timeout = convertToInteger(params().get(2).toString());
+        long timeout = convertToLong(params().get(2).toString());
 
-
-        long count = getCount(source);
-        if(count == 0){
+        //TODO: Active block dumb.
+        long currentSleep = 0L;
+        long count = 0L;
+        while(count == 0L && currentSleep < timeout * 1000){
             try {
-                Thread.sleep(timeout);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
+            currentSleep = currentSleep + 100;
             count = getCount(source);
         }
 
