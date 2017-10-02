@@ -127,6 +127,7 @@ public class RedisOperationExecutor {
             //Transaction handling
             if(name.equals("multi")){
                 newTransaction();
+                return Response.OK;
             } else if(name.equals("exec")){
                 return commitTransaction();
             }
@@ -148,19 +149,21 @@ public class RedisOperationExecutor {
         }
     }
 
-    private synchronized void newTransaction(){
+    private void newTransaction(){
         if(transaction != null) throw new RuntimeException("Redis mock does not support more than one transaction");
         transaction = new ArrayList<>();
     }
 
-    private synchronized Slice commitTransaction(){
-        if(transaction == null) throw new RuntimeException("No transaction started");
-        List<Slice> results = transaction.stream().map(RedisOperation::execute).collect(Collectors.toList());
-        closeTransaction();
-        return Response.array(results);
+    private Slice commitTransaction(){
+        synchronized (base) {
+            if (transaction == null) throw new RuntimeException("No transaction started");
+            List<Slice> results = transaction.stream().map(RedisOperation::execute).collect(Collectors.toList());
+            closeTransaction();
+            return Response.array(results);
+        }
     }
 
-    private synchronized void closeTransaction(){
+    private void closeTransaction(){
         if (transaction != null){
             transaction.clear();
             transaction = null;

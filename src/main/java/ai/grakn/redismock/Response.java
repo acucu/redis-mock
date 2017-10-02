@@ -56,13 +56,13 @@ public class Response {
         return array(slices);
     }
 
-    public static Slice subscribedToChannel(List<Slice> channels, int numChannels){
+    public static Slice subscribedToChannel(List<Slice> channels){
         Slice operation = SliceParser.consumeParameter("$9\r\nsubscribe\r\n".getBytes(StandardCharsets.UTF_8));
 
         List<Slice> slices = new ArrayList<>();
         slices.add(Response.bulkString(operation));
         channels.forEach(channel -> slices.add(bulkString(channel)));
-        slices.add(Response.integer(numChannels));
+        slices.add(Response.integer(channels.size()));
 
         return array(slices);
     }

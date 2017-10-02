@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -129,12 +130,15 @@ public class RedisBase {
         return Collections.emptySet();
     }
 
-    //TODO: Make this less ugly and not scale like rubbish
-    public int getNumSubscriptions(RedisClient client){
-        int count = 0;
-        for (Set<RedisClient> redisClients : subscribers.values()) {
-            if(redisClients.contains(client)) count++;
-        }
-        return count;
+    public List<Slice> getSubscriptions(RedisClient client){
+        List<Slice> subscriptions = new ArrayList<>();
+
+        subscribers.forEach((channel, subscribers) -> {
+            if(subscribers.contains(client)){
+                subscriptions.add(channel);
+            }
+        });
+
+        return subscriptions;
     }
 }
