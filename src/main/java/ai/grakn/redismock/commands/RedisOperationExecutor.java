@@ -8,6 +8,7 @@ import ai.grakn.redismock.Slice;
 import ai.grakn.redismock.expecptions.WrongNumberOfArgumentsException;
 import ai.grakn.redismock.expecptions.WrongValueTypeException;
 import com.google.common.base.Preconditions;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
  * Created by Xiaolu on 2015/4/20.
  */
 public class RedisOperationExecutor {
-
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(RedisOperationExecutor.class);
     private final RedisClient owner;
     private final RedisBase base;
     private List<RedisOperation> transaction;
@@ -127,9 +128,9 @@ public class RedisOperationExecutor {
             //Transaction handling
             if(name.equals("multi")){
                 newTransaction();
-                return Response.OK;
+                return response(name, Response.OK);
             } else if(name.equals("exec")){
-                return commitTransaction();
+                return response(name, commitTransaction());
             }
 
 
@@ -138,15 +139,20 @@ public class RedisOperationExecutor {
             if(transaction != null){
                 transaction.add(redisOperation);
             } else {
-                return redisOperation.execute();
+                return response(name, redisOperation.execute());
             }
 
-            return Response.OK;
+            return response(name, Response.OK);
         } catch(UnsupportedOperationException | WrongValueTypeException e){
             return Response.error(e.getMessage());
         } catch (WrongNumberOfArgumentsException e){
             return Response.error(String.format("ERR wrong number of arguments for '%s' command", name));
         }
+    }
+
+    private Slice response(String command, Slice response){
+        LOG.debug("Received command [" + command + "] in transaction mode [" + (transaction != null) + "] sending reply [" + response + "]");
+        return response;
     }
 
     private void newTransaction(){
@@ -157,7 +163,13 @@ public class RedisOperationExecutor {
     private Slice commitTransaction(){
         synchronized (base) {
             if (transaction == null) throw new RuntimeException("No transaction started");
-            List<Slice> results = transaction.stream().map(RedisOperation::execute).collect(Collectors.toList());
+            List<Slice> results;
+            try {
+                results = transaction.stream().map(RedisOperation::execute).collect(Collectors.toList());
+            } catch (Throwable t){
+                LOG.error("ERROR during committing transaction", t);
+                return Response.NULL;
+            }
             closeTransaction();
             return Response.array(results);
         }

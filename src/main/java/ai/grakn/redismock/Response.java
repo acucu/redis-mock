@@ -67,4 +67,15 @@ public class Response {
         return array(slices);
     }
 
+    public static Slice unsubscribe(List<Slice> channels){
+        Slice operation = SliceParser.consumeParameter("$9\r\nunsubscribe\r\n".getBytes(StandardCharsets.UTF_8));
+
+        List<Slice> slices = new ArrayList<>();
+        slices.add(Response.bulkString(operation));
+        slices.add(Response.bulkString(channels.iterator().next()));
+        slices.add(Response.integer(channels.size() - 1));
+
+        return array(slices);
+    }
+
 }

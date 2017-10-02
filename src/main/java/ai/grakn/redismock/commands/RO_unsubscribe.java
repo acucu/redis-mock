@@ -19,6 +19,7 @@ class RO_unsubscribe extends AbstractRedisOperation {
     public Slice execute() {
         params().forEach(channel -> base().removeSubscriber(channel, client));
         //TODO: Return correct response
+
         return Response.OK;
     }
 }
