@@ -27,14 +27,14 @@ public class SimpleOperationsTest extends ComparisonBase {
     }
 
     @Theory
-    public void whenUsingRPOP_EnsureTheLastElementPushedIsReturned(Jedis jedis){
+    public void whenUsingRpop_EnsureTheLastElementPushedIsReturned(Jedis jedis){
         String key = "Another key";
         jedis.rpush(key, "1", "2", "3");
         assertEquals(jedis.rpop(key), "3");
     }
 
     @Theory
-    public void whenUsingRPOPLPUSH_CorrectResultsAreReturned(Jedis jedis){
+    public void whenUsingRpoplpush_CorrectResultsAreReturned(Jedis jedis){
         String list1key = "list 1";
         String list2key = "list 2";
 

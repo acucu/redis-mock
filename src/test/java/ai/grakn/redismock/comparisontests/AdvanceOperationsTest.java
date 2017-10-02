@@ -82,9 +82,9 @@ public class AdvanceOperationsTest extends ComparisonBase {
     }
 
     @Theory
-    public void whenUsingBRPOPLPUSH_EnsureItBlocksAndCorrectResultsAreReturned(Jedis jedis) throws ExecutionException, InterruptedException {
-        String list1key = "list 1";
-        String list2key = "list 2";
+    public void whenUsingBrpoplpush_EnsureItBlocksAndCorrectResultsAreReturned(Jedis jedis) throws ExecutionException, InterruptedException {
+        String list1key = "source list";
+        String list2key = "target list";
 
         jedis.rpush(list2key, "a", "b", "c");
 
@@ -109,6 +109,16 @@ public class AdvanceOperationsTest extends ComparisonBase {
         //Check the list is modified
         results = jedis.lrange(list2key, 0, -1);
         assertEquals(4, results.size());
+    }
+
+    @Theory
+    public void whenUsingBrpoplpushAndReachingTimeout_Return(Jedis jedis){
+        String list1key = "another source list";
+        String list2key = "another target list";
+
+        String result = jedis.brpoplpush(list1key, list2key, 1);
+
+        assertNull(result);
     }
 
     //TODO: complete this test
