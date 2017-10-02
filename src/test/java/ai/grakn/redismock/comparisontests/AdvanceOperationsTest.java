@@ -11,8 +11,11 @@ import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.Transaction;
 import redis.clients.jedis.exceptions.JedisDataException;
 
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -76,6 +79,36 @@ public class AdvanceOperationsTest extends ComparisonBase {
 
         mockSubscriber.unsubscribe();
         subsciberThread.shutdownNow();
+    }
+
+    @Theory
+    public void whenUsingBRPOPLPUSH_EnsureItBlocksAndCorrectResultsAreReturned(Jedis jedis) throws ExecutionException, InterruptedException {
+        String list1key = "list 1";
+        String list2key = "list 2";
+
+        jedis.rpush(list2key, "a", "b", "c");
+
+        //Block on performing the BRPOPLPUSH
+        Client client = jedis.getClient();
+        Jedis blockedClient = new Jedis(client.getHost(), client.getPort());
+        ExecutorService blockingThread = Executors.newSingleThreadExecutor();
+        Future future = blockingThread.submit(() -> {
+            String result = blockedClient.brpoplpush(list1key, list2key, 500);
+            assertEquals("3", result);
+        });
+
+        //Check the list is not modified
+        List<String> results = jedis.lrange(list2key, 0, -1);
+        assertEquals(3, results.size());
+
+        //Push some stuff into the blocked list
+        jedis.rpush(list1key, "1", "2", "3");
+
+        future.get();
+
+        //Check the list is modified
+        results = jedis.lrange(list2key, 0, -1);
+        assertEquals(4, results.size());
     }
 
     //TODO: complete this test
