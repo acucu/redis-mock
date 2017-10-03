@@ -82,7 +82,7 @@ public class Response {
 
     public static Slice clientResponse(String command, Slice response){
         String stringResponse = response.toString().replace("\n", "").replace("\r", "");
-        LOG.debug("Received command [" + command + "] in sending reply [" + stringResponse + "]");
+        LOG.debug("Received command [" + command + "] sending reply [" + stringResponse + "]");
         return response;
     }
 
