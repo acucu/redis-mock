@@ -114,6 +114,8 @@ public class RedisOperationExecutor {
                 return new RO_publish(base, params);
             case "flushall":
                 return new RO_flushall(base, params);
+            case "lrem":
+                return new RO_lrem(base, params);
             default:
                 throw new UnsupportedOperationException(String.format("Unsupported operation '%s'", name));
         }

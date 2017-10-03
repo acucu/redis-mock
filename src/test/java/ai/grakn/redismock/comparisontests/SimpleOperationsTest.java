@@ -82,4 +82,31 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertNull(jedis.get(key));
     }
 
+    @Theory
+    public void whenUsingLrem_EnsureDeletionsWorkAsExpected(Jedis jedis){
+        String key = "my-super-special-sexy-key";
+        String hello = "hello";
+        String foo = "foo";
+
+        jedis.rpush(key, hello);
+        jedis.rpush(key, hello);
+        jedis.rpush(key, foo);
+        jedis.rpush(key, hello);
+
+        //Everything in order
+        List<String> list = jedis.lrange(key, 0, -1);
+        assertEquals(hello, list.get(0));
+        assertEquals(hello, list.get(1));
+        assertEquals(foo, list.get(2));
+        assertEquals(hello, list.get(3));
+
+        long numRemoved = jedis.lrem(key, -2, hello);
+        assertEquals(2L, numRemoved);
+
+        //Check order again
+        list = jedis.lrange(key, 0, -1);
+        assertEquals(hello, list.get(0));
+        assertEquals(foo, list.get(1));
+    }
+
 }
