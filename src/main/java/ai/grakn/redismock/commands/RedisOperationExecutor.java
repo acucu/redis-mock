@@ -128,9 +128,9 @@ public class RedisOperationExecutor {
             //Transaction handling
             if(name.equals("multi")){
                 newTransaction();
-                return response(name, Response.OK);
+                return Response.clientResponse(name, Response.OK);
             } else if(name.equals("exec")){
-                return response(name, commitTransaction());
+                return Response.clientResponse(name, commitTransaction());
             }
 
 
@@ -139,20 +139,17 @@ public class RedisOperationExecutor {
             if(transaction != null){
                 transaction.add(redisOperation);
             } else {
-                return response(name, redisOperation.execute());
+                return Response.clientResponse(name, redisOperation.execute());
             }
 
-            return response(name, Response.OK);
+            return Response.clientResponse(name, Response.OK);
         } catch(UnsupportedOperationException | WrongValueTypeException e){
+            LOG.error("Malformed request", e);
             return Response.error(e.getMessage());
         } catch (WrongNumberOfArgumentsException e){
+            LOG.error("Malformed request", e);
             return Response.error(String.format("ERR wrong number of arguments for '%s' command", name));
         }
-    }
-
-    private Slice response(String command, Slice response){
-        LOG.debug("Received command [" + command + "] in transaction mode [" + (transaction != null) + "] sending reply [" + response + "]");
-        return response;
     }
 
     private void newTransaction(){

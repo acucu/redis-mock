@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -111,7 +112,9 @@ public class RedisBase {
     }
 
     public synchronized void addSubscriber(Slice channel, RedisClient client){
-        subscribers.merge(channel, Collections.singleton(client), (currentSubscribers, newSubscribers) -> {
+        Set<RedisClient> newClient = new HashSet<>();
+        newClient.add(client);
+        subscribers.merge(channel, newClient, (currentSubscribers, newSubscribers) -> {
             currentSubscribers.addAll(newSubscribers);
             return currentSubscribers;
         });
