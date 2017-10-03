@@ -70,4 +70,16 @@ public class SimpleOperationsTest extends ComparisonBase {
         assertTrue(results2.contains("c"));
     }
 
+    @Theory
+    public void whenUsingFlushall_EnsureEverythingIsDeleted(Jedis jedis){
+        String key = "my-super-special-key";
+        String value = "my-not-so-special-value";
+
+        jedis.set(key, value);
+        assertEquals(value, jedis.get(key));
+
+        jedis.flushAll();
+        assertNull(jedis.get(key));
+    }
+
 }
