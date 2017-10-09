@@ -29,20 +29,29 @@ class RO_keys extends AbstractRedisOperation {
 
     private static String createRegexFromGlob(String glob)
     {
-        String out = "^";
+        StringBuilder out = new StringBuilder("^");
         for(int i = 0; i < glob.length(); ++i)
         {
             final char c = glob.charAt(i);
             switch(c)
             {
-                case '*': out += ".*"; break;
-                case '?': out += '.'; break;
-                case '.': out += "\\."; break;
-                case '\\': out += "\\\\"; break;
-                default: out += c;
+                case '*':
+                    out.append(".*");
+                    break;
+                case '?':
+                    out.append('.');
+                    break;
+                case '.':
+                    out.append("\\.");
+                    break;
+                case '\\':
+                    out.append("\\\\");
+                    break;
+                default:
+                    out.append(c);
             }
         }
-        out += '$';
-        return out;
+        out.append('$');
+        return out.toString();
     }
 }
