@@ -166,6 +166,7 @@ public class SimpleOperationsTest extends ComparisonBase {
     @Theory
     public void whenGettingKeys_EnsureCorrectKeysAreReturned(Jedis jedis){
         jedis.mset("one", "1", "two", "2", "three", "3", "four", "4");
+        jedis.flushAll();
 
         //Check simple pattern
         Set<String> results = jedis.keys("*o*");
@@ -180,7 +181,7 @@ public class SimpleOperationsTest extends ComparisonBase {
         //All Keys
         results = jedis.keys("*");
         assertEquals(4, results.size());
-        assertTrue(results.contains("one") && results.contains("two") && results.contains("four"));
+        assertTrue(results.contains("one") && results.contains("two") && results.contains("three") && results.contains("four"));
     }
 
 }
