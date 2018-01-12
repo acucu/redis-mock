@@ -129,6 +129,8 @@ public class RedisOperationExecutor {
                 return new RO_sadd(base, params);
             case "smembers":
                 return new RO_smembers(base, params);
+            case "spop":
+                return new RO_spop(base, params);
             default:
                 throw new UnsupportedOperationException(String.format("Unsupported operation '%s'", name));
         }
